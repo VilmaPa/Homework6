@@ -12,6 +12,7 @@ This was coding project in Asp.NET MVC  RestApiApp.
 - Implement actions: get all, get by id, delete, update name, create
 - Check with Postman
 - add Swagger library
+- part2: project updated with database part (MS SQL Server)
 
 
 
