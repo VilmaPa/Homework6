@@ -13,67 +13,59 @@ namespace Homework6.Controllers
     [Route("[controller]")]
     public class FruitsController : ControllerBase
     {
-        private DataService _dataService;
+        private readonly DataContext _context;
 
-        public FruitsController(DataService dataService)
+        public FruitsController(DataContext context)
         {
-            _dataService = dataService;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            var item = _dataService.Fruits.FirstOrDefault(i => i.Id == id);
+            var fruit = _context.Shops.FirstOrDefault(f => f.Id == id);
 
-            if (item == null)
+            if (fruit != null)
+            {
+                _context.Remove(fruit);
+                _context.SaveChanges();
+            }
+            else
             {
                 throw new KeyNotFoundException();
             }
-
-            _dataService.Fruits.Remove(item);
         }
 
         [HttpGet]
         public List<Fruit> GetAll()
         {
-            return _dataService.Fruits;
+            return _context.Fruits.ToList();
         }
 
         [HttpGet("{id}")]
         public Fruit GetById(int id)
         {
-            var item = _dataService.Fruits.FirstOrDefault(i => i.Id == id);
-
-            if (item == null)
-            {
-                throw new KeyNotFoundException();
-            }
-
-            return item;
+            return _context.Fruits.FirstOrDefault(f => f.Id == id);
         }
 
         [HttpPost]
         public void Create(Fruit item)
         {
-            _dataService.Fruits.Add(item);
+            _context.Fruits.Add(item);
+            _context.SaveChanges();
         }
 
         [HttpPut("{id}")]
-        public void Update(Fruit item)
+        public void Update(int id)
         {
-            var itemToReplace = _dataService.Fruits.FirstOrDefault(i => i.Id == item.Id);
+            var fruit = _context.Fruits.FirstOrDefault(f => f.Id == id);
 
-            if (itemToReplace == null)
+            if (fruit != null)
             {
-                throw new KeyNotFoundException();
-            }
-            foreach (var fruit in _dataService.Fruits)
-            {
-                if (fruit.Id == item.Id)
-                {
-                    fruit.Name = item.Name;
-                }
+                _context.Update(fruit);
+                _context.SaveChanges();
             }
         }
+        
     }
 }

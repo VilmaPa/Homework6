@@ -11,71 +11,62 @@ namespace Homework6.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-
     public class DishesController : ControllerBase
     {
-        private DataService _dataService;
+        private readonly DataContext _context;
 
-        public DishesController(DataService dataService)
+        public DishesController(DataContext context)
         {
-            _dataService = dataService;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-           var item = _dataService.Dishes.FirstOrDefault(i => i.Id == id);
+            var dish = _context.Shops.FirstOrDefault(f => f.Id == id);
 
-            if (item == null)
+            if (dish != null)
+            {
+                _context.Remove(dish);
+                _context.SaveChanges();
+            }
+            else
             {
                 throw new KeyNotFoundException();
             }
-
-            _dataService.Dishes.Remove(item);
         }
 
         [HttpGet]
         public List<Dish> GetAll()
         {
-            return _dataService.Dishes;
+            return _context.Dishes.ToList();
         }
 
         [HttpGet("{id}")]
         public Dish GetById(int id)
         {
-            var item = _dataService.Dishes.FirstOrDefault(i => i.Id == id);
-
-            if (item == null)
-            {
-                throw new KeyNotFoundException();
-            }
-
-            return item;
+            return _context.Dishes.FirstOrDefault(f => f.Id == id);
         }
 
         [HttpPost]
         public void Create(Dish item)
         {
-            _dataService.Dishes.Add(item);
+            _context.Dishes.Add(item);
+            _context.SaveChanges();
         }
 
         [HttpPut("{id}")]
-        public void Update(Dish item)
+        public void Update(int id)
         {
-            var itemToReplace = _dataService.Dishes.FirstOrDefault(i => i.Id == item.Id);
+            var dish = _context.Dishes.FirstOrDefault(f => f.Id == id);
 
-            if (itemToReplace == null)
+            if (dish != null)
             {
-                throw new KeyNotFoundException();
-            }
-            foreach (var dish in _dataService.Dishes)
-            {
-                if (dish.Id == item.Id)
-                {
-                    dish.Name = item.Name;
-                }
+                _context.Update(dish);
+                _context.SaveChanges();
             }
         }
+
     }
 }
 
